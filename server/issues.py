@@ -10,12 +10,23 @@ issues = [
     {"id": 2, "title": "Issue 2", "description": "Description 2"}
 ]
 
+# Counter for generating unique IDs
+issue_id_counter = len(issues) + 1
+
 # Create
 @app.route('/issues', methods=['POST'])
 def create_issue():
+    global issue_id_counter
+
     new_issue = request.json
+    new_issue["id"] = issue_id_counter
     issues.append(new_issue)
+
     print("Created Issue:", new_issue)
+    
+    # Increment the counter for the next issue
+    issue_id_counter += 1
+
     return jsonify(new_issue)
 
 # Read
@@ -27,8 +38,9 @@ def get_issues():
 @app.route('/issues', methods=['PUT'])
 def update_issue():
     updated_issue = request.json
-    issue_id = updated_issue.get('id')
+    issue_id = int(updated_issue.get('id'))
     existing_issue = next((issue for issue in issues if issue['id'] == issue_id), None)
+    
     if existing_issue:
         existing_issue.update(updated_issue)
         print("Updated Issue:", existing_issue)
@@ -39,8 +51,9 @@ def update_issue():
 # Delete
 @app.route('/issues', methods=['DELETE'])
 def delete_issue():
-    issue_id = request.json.get('id')
+    issue_id = int(request.json.get('id'))
     deleted_issue = next((issue for issue in issues if issue['id'] == issue_id), None)
+    
     if deleted_issue:
         issues.remove(deleted_issue)
         print("Deleted Issue:", deleted_issue)
